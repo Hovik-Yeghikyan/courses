@@ -2,7 +2,6 @@ package com.vector.courses.endpoint;
 
 import com.vector.courses.dto.CourseDto;
 import com.vector.courses.dto.SaveCourseDto;
-import com.vector.courses.dto.SaveUserDto;
 import com.vector.courses.dto.UserDto;
 import com.vector.courses.service.CourseService;
 import lombok.RequiredArgsConstructor;
@@ -14,35 +13,41 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/courses")
 public class CourseEndpoint {
 
 
     private final CourseService courseService;
 
 
-    @GetMapping(value = "/courses")
+    @GetMapping()
     public ResponseEntity<List<CourseDto>> getAll() {
         return ResponseEntity.ok(courseService.findAll());
     }
 
-    @GetMapping("/courses/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<CourseDto> getById(@PathVariable("id") int id) {
         return ResponseEntity.ok(courseService.findById(id));
     }
 
-    @PostMapping("/courses")
+    @GetMapping("/{courseId}/students")
+    public ResponseEntity<List<UserDto>> getStudentsByCourseId(@PathVariable int courseId) {
+        return ResponseEntity.ok(courseService.findStudentsByCourseId(courseId));
+    }
+
+    @PostMapping()
     public ResponseEntity<?> create(@RequestBody SaveCourseDto saveCourseDto) {
         CourseDto courseDto = courseService.save(saveCourseDto);
         return ResponseEntity.ok(courseDto);
     }
 
-    @PutMapping("/courses/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<?> edit(@PathVariable("id") int id,@RequestBody SaveCourseDto saveCourseDto) {
         CourseDto updatedCourse = courseService.edit(id,saveCourseDto);
         return ResponseEntity.ok(updatedCourse);
     }
 
-    @PostMapping("/courses/{courseId}/register")
+    @PostMapping("/{courseId}/register")
     public ResponseEntity<String> registerStudentToCourse(@PathVariable int courseId, @RequestBody UserDto student) {
         try {
             courseService.registerStudentToCourse(courseId, student.getId());
@@ -52,7 +57,7 @@ public class CourseEndpoint {
         }
     }
 
-    @DeleteMapping("/courses/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") int id) {
         if (courseService.findById(id) == null) {
             return ResponseEntity.notFound().build();

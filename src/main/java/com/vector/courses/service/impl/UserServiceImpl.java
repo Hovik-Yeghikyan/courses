@@ -7,8 +7,6 @@ import com.vector.courses.entity.User;
 import com.vector.courses.repository.UserRepository;
 import com.vector.courses.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

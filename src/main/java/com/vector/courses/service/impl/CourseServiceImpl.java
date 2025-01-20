@@ -4,20 +4,17 @@ import com.vector.courses.converter.CourseConverter;
 import com.vector.courses.converter.UserConverter;
 import com.vector.courses.dto.CourseDto;
 import com.vector.courses.dto.SaveCourseDto;
-import com.vector.courses.dto.SaveUserDto;
 import com.vector.courses.dto.UserDto;
 import com.vector.courses.entity.Course;
 import com.vector.courses.entity.User;
 import com.vector.courses.repository.CourseRepository;
 import com.vector.courses.repository.UserRepository;
 import com.vector.courses.service.CourseService;
-import com.vector.courses.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +23,7 @@ public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final CourseConverter courseConverter;
+    private final UserConverter userConverter;
 
 
 
@@ -77,6 +75,21 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.save(course);
 
         }
+
+    @Override
+    public List<UserDto> findStudentsByCourseId(int courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> {
+                    String message = "Cannot find course with id " + courseId;
+                    return new RuntimeException(message);
+                });
+        List<UserDto> students = new ArrayList<>();
+        List<User> userByCourse = course.getStudents();
+        for (User user : userByCourse) {
+            students.add(userConverter.fromUserEntityToDto(user));
+        }
+        return students;
+    }
 
 
     @Override

@@ -2,7 +2,6 @@ package com.vector.courses.service;
 
 import com.vector.courses.dto.SaveUserDto;
 import com.vector.courses.dto.UserDto;
-import com.vector.courses.entity.User;
 
 import java.util.List;
 import java.util.Optional;
