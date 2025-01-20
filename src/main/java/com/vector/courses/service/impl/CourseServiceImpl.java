@@ -62,19 +62,20 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public void registerStudentToCourse(int courseId, SaveUserDto student) {
-        Course courseById = courseRepository.findById(courseId)
+    public void registerStudentToCourse(int courseId, int studentId) {
+        Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> {
                     String message = "Cannot find course with id " + courseId;
                     return new RuntimeException(message);
                 });
-        Optional<User> byEmail = userRepository.findByEmail(student.getEmail());
-        User user = byEmail.get();
-        courseById.getStudents().add(user);
-        user.getCoursesAsStudent().add(courseById);
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> {
+                    String message = "Cannot find student with id " + studentId;
+                    return new RuntimeException(message);
+                });
+        course.getStudents().add(student);
+        courseRepository.save(course);
 
-        courseRepository.save(courseById);
-        userRepository.save(user);
         }
 
 

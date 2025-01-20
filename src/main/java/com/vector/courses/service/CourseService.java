@@ -16,7 +16,8 @@ public interface CourseService {
 
     CourseDto edit(int id, SaveCourseDto saveCourseDto);
 
-    void registerStudentToCourse(int courseId, SaveUserDto student);
+    void registerStudentToCourse(int courseId, int studentId);
+
 
     void deleteById(int id);
 

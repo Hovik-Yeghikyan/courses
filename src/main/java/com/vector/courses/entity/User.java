@@ -25,9 +25,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "teacher")
-    private List<Course> courses;
-
-    @ManyToMany(mappedBy = "students")
-    private List<Course> coursesAsStudent;
+//    @OneToMany(mappedBy = "teacher")
+//    private List<Course> courses;
+//
+//    @ManyToMany(mappedBy = "students")
+//    private List<Course> coursesAsStudent;
 }

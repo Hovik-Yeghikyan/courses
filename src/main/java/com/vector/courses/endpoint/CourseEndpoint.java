@@ -3,6 +3,7 @@ package com.vector.courses.endpoint;
 import com.vector.courses.dto.CourseDto;
 import com.vector.courses.dto.SaveCourseDto;
 import com.vector.courses.dto.SaveUserDto;
+import com.vector.courses.dto.UserDto;
 import com.vector.courses.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -42,9 +43,9 @@ public class CourseEndpoint {
     }
 
     @PostMapping("/courses/{courseId}/register")
-    public ResponseEntity<String> registerStudentToCourse(@PathVariable int courseId, @RequestBody SaveUserDto student) {
+    public ResponseEntity<String> registerStudentToCourse(@PathVariable int courseId, @RequestBody UserDto student) {
         try {
-            courseService.registerStudentToCourse(courseId, student);
+            courseService.registerStudentToCourse(courseId, student.getId());
             return ResponseEntity.ok("Student successfully registered to the course");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to register student to the course");
