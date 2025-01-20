@@ -1,5 +1,6 @@
 package com.vector.courses.service;
 
+import com.vector.courses.dto.CourseDto;
 import com.vector.courses.dto.SaveUserDto;
 import com.vector.courses.dto.UserDto;
 
@@ -15,6 +16,7 @@ public interface UserService {
 
     UserDto edit(int id, SaveUserDto saveUserDto);
 
+    List<CourseDto> findUsersCourses(int id);
 
     void deleteById(int id);
 

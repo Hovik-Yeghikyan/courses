@@ -1,6 +1,7 @@
 package com.vector.courses.endpoint;
 
 import com.vector.courses.converter.UserConverter;
+import com.vector.courses.dto.CourseDto;
 import com.vector.courses.dto.SaveUserDto;
 import com.vector.courses.dto.UserDto;
 import com.vector.courses.service.UserService;
@@ -17,7 +18,6 @@ import java.util.List;
 public class UserEndpoint {
 
     private final UserService userService;
-    private final UserConverter userConverter;
 
 
     @GetMapping()
@@ -28,6 +28,11 @@ public class UserEndpoint {
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getById(@PathVariable("id") int id) {
         return ResponseEntity.ok(userService.findById(id));
+    }
+
+    @GetMapping("/{id}/courses")
+    public ResponseEntity<List<CourseDto>> getStudentsCourses(@PathVariable("id") int id) {
+        return ResponseEntity.ok(userService.findUsersCourses(id));
     }
 
     @PostMapping()

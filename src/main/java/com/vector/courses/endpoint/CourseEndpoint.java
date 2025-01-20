@@ -35,6 +35,8 @@ public class CourseEndpoint {
         return ResponseEntity.ok(courseService.findStudentsByCourseId(courseId));
     }
 
+
+
     @PostMapping()
     public ResponseEntity<?> create(@RequestBody SaveCourseDto saveCourseDto) {
         CourseDto courseDto = courseService.save(saveCourseDto);
@@ -56,6 +58,7 @@ public class CourseEndpoint {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to register student to the course");
         }
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") int id) {
