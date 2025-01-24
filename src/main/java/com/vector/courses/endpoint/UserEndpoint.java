@@ -1,6 +1,5 @@
 package com.vector.courses.endpoint;
 
-import com.vector.courses.converter.UserConverter;
 import com.vector.courses.dto.CourseDto;
 import com.vector.courses.dto.SaveUserDto;
 import com.vector.courses.dto.UserDto;
@@ -37,9 +36,6 @@ public class UserEndpoint {
 
     @PostMapping()
     public ResponseEntity<?> create(@RequestBody SaveUserDto saveUserDto) {
-        if (userService.findByEmail(saveUserDto.getEmail()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
         UserDto user = userService.save(saveUserDto);
         return ResponseEntity.ok(user);
     }

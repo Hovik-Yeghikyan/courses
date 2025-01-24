@@ -1,15 +1,17 @@
 package com.vector.courses.service.impl;
 
-import com.vector.courses.converter.CourseConverter;
-import com.vector.courses.converter.UserConverter;
+
 import com.vector.courses.dto.CourseDto;
 import com.vector.courses.dto.SaveUserDto;
 import com.vector.courses.dto.UserDto;
 import com.vector.courses.entity.Course;
 import com.vector.courses.entity.User;
+import com.vector.courses.exception.ResourceAlreadyExistsException;
+import com.vector.courses.exception.ResourceNotFoundException;
+import com.vector.courses.mapper.CourseMapper;
+import com.vector.courses.mapper.UserMapper;
 import com.vector.courses.repository.CourseRepository;
 import com.vector.courses.repository.UserRepository;
-import com.vector.courses.service.CourseService;
 import com.vector.courses.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,25 +25,25 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final UserConverter userConverter;
     private final CourseRepository courseRepository;
-    private final CourseConverter courseConverter;
+    private final CourseMapper courseMapper;
+    private final UserMapper userMapper;
 
 
     @Override
     public List<UserDto> findAll() {
         List<User> users = userRepository.findAll();
-        List<UserDto> userDtos = new ArrayList<>();
-        for (User user : users) {
-            userDtos.add(userConverter.fromUserEntityToDto(user));
-        }
-        return userDtos;
+        return userMapper.toDtoList(users);
     }
 
     @Override
     public UserDto save(SaveUserDto saveUserDto) {
-        User user = userRepository.save(userConverter.fromUserDtoToEntity(saveUserDto));
-        return userConverter.fromUserEntityToDto(user);
+        if (userRepository.findByEmail(saveUserDto.getEmail()).isPresent()) {
+       throw new ResourceAlreadyExistsException("User with email " + saveUserDto.getEmail() + " already exists");
+        } else {
+            User user = userRepository.save(userMapper.toEntity(saveUserDto));
+            return userMapper.toDto(user);
+        }
     }
 
 
@@ -50,7 +52,7 @@ public class UserServiceImpl implements UserService {
         User userById = userRepository.findById(id)
                 .orElseThrow(() -> {
                     String message = "Cannot find user with id " + id;
-                    return new RuntimeException(message);
+                    return new ResourceNotFoundException(message);
                 });
 
         userById.setName(userDto.getName());
@@ -59,7 +61,7 @@ public class UserServiceImpl implements UserService {
         userById.setRole(userDto.getRole());
 
         User updatedUser = userRepository.save(userById);
-        return userConverter.fromUserEntityToDto(updatedUser);
+        return userMapper.toDto(updatedUser);
     }
 
     @Override
@@ -67,13 +69,13 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> {
                     String message = "Cannot find user with id " + id;
-                    return new RuntimeException(message);
+                    return new ResourceNotFoundException(message);
                 });
         List<CourseDto> courses = new ArrayList<>();
         List<Course> all = courseRepository.findAll();
         for (Course course : all) {
             if (course.getStudents().contains(user)) {
-                courses.add(courseConverter.fromCourseEntityToDto(course));
+                courses.add(courseMapper.toDto(course));
             }
         }
         return courses;
@@ -92,7 +94,7 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             return null;
         }
-        return userConverter.fromUserEntityToDto(user);
+        return userMapper.toDto(user);
 
     }
 
@@ -102,7 +104,7 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             return Optional.empty();
         }
-        UserDto userDto = userConverter.fromUserEntityToDto(user);
+        UserDto userDto = userMapper.toDto(user);
         return Optional.of(userDto);
     }
 }

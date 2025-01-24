@@ -4,6 +4,7 @@ import com.vector.courses.dto.CourseDto;
 import com.vector.courses.dto.SaveCourseDto;
 import com.vector.courses.dto.UserDto;
 import com.vector.courses.service.CourseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,7 @@ public class CourseEndpoint {
 
 
     @PostMapping()
-    public ResponseEntity<?> create(@RequestBody SaveCourseDto saveCourseDto) {
+    public ResponseEntity<?> create(@RequestBody @Valid SaveCourseDto saveCourseDto) {
         CourseDto courseDto = courseService.save(saveCourseDto);
         return ResponseEntity.ok(courseDto);
     }
@@ -62,9 +63,6 @@ public class CourseEndpoint {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") int id) {
-        if (courseService.findById(id) == null) {
-            return ResponseEntity.notFound().build();
-        }
         courseService.deleteById(id);
         return ResponseEntity.ok().build();
     }

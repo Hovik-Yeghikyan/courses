@@ -1,12 +1,13 @@
 package com.vector.courses.service.impl;
 
-import com.vector.courses.converter.CourseConverter;
-import com.vector.courses.converter.UserConverter;
 import com.vector.courses.dto.CourseDto;
 import com.vector.courses.dto.SaveCourseDto;
 import com.vector.courses.dto.UserDto;
 import com.vector.courses.entity.Course;
 import com.vector.courses.entity.User;
+import com.vector.courses.exception.ResourceNotFoundException;
+import com.vector.courses.mapper.CourseMapper;
+import com.vector.courses.mapper.UserMapper;
 import com.vector.courses.repository.CourseRepository;
 import com.vector.courses.repository.UserRepository;
 import com.vector.courses.service.CourseService;
@@ -22,25 +23,20 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
-    private final CourseConverter courseConverter;
-    private final UserConverter userConverter;
-
+    private final CourseMapper courseMapper;
+    private final UserMapper userMapper;
 
 
     @Override
     public List<CourseDto> findAll() {
         List<Course> courses = courseRepository.findAll();
-        List<CourseDto> courseDtos = new ArrayList<>();
-        for (Course course : courses) {
-            courseDtos.add(courseConverter.fromCourseEntityToDto(course));
-        }
-        return courseDtos;
+        return courseMapper.toDtoList(courses);
     }
 
     @Override
     public CourseDto save(SaveCourseDto saveCourseDto) {
-        Course course = courseRepository.save(courseConverter.fromCourseDtoToEntity(saveCourseDto));
-        return courseConverter.fromCourseEntityToDto(course);
+        Course course = courseRepository.save(courseMapper.toEntity(saveCourseDto));
+        return courseMapper.toDto(course);
     }
 
     @Override
@@ -48,7 +44,7 @@ public class CourseServiceImpl implements CourseService {
         Course courseById = courseRepository.findById(id)
                 .orElseThrow(() -> {
                     String message = "Cannot find course with id " + id;
-                    return new RuntimeException(message);
+                    return new ResourceNotFoundException(message);
                 });
 
         courseById.setTitle(saveCourseDto.getTitle());
@@ -56,7 +52,7 @@ public class CourseServiceImpl implements CourseService {
         courseById.setTeacher(saveCourseDto.getTeacher());
 
         Course updatedCourse = courseRepository.save(courseById);
-        return courseConverter.fromCourseEntityToDto(updatedCourse);
+        return courseMapper.toDto(updatedCourse);
     }
 
     @Override
@@ -64,29 +60,29 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> {
                     String message = "Cannot find course with id " + courseId;
-                    return new RuntimeException(message);
+                    return new ResourceNotFoundException(message);
                 });
         User student = userRepository.findById(studentId)
                 .orElseThrow(() -> {
                     String message = "Cannot find student with id " + studentId;
-                    return new RuntimeException(message);
+                    return new ResourceNotFoundException(message);
                 });
         course.getStudents().add(student);
         courseRepository.save(course);
 
-        }
+    }
 
     @Override
     public List<UserDto> findStudentsByCourseId(int courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> {
                     String message = "Cannot find course with id " + courseId;
-                    return new RuntimeException(message);
+                    return new ResourceNotFoundException(message);
                 });
         List<UserDto> students = new ArrayList<>();
         List<User> userByCourse = course.getStudents();
         for (User user : userByCourse) {
-            students.add(userConverter.fromUserEntityToDto(user));
+            students.add(userMapper.toDto(user));
         }
         return students;
     }
@@ -94,6 +90,10 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void deleteById(int id) {
+        if (!courseRepository.existsById(id)) {
+            String message = "Cannot find course with id " + id;
+            throw new ResourceNotFoundException(message);
+        }
         courseRepository.deleteById(id);
     }
 
@@ -103,7 +103,7 @@ public class CourseServiceImpl implements CourseService {
         if (course == null) {
             return null;
         }
-        return courseConverter.fromCourseEntityToDto(course);
+        return courseMapper.toDto(course);
 
     }
 
