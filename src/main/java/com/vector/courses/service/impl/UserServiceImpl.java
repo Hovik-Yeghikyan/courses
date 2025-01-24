@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto save(SaveUserDto saveUserDto) {
         if (userRepository.findByEmail(saveUserDto.getEmail()).isPresent()) {
-       throw new ResourceAlreadyExistsException("User with email " + saveUserDto.getEmail() + " already exists");
+            throw new ResourceAlreadyExistsException("User with email " + saveUserDto.getEmail() + " already exists");
         } else {
             User user = userRepository.save(userMapper.toEntity(saveUserDto));
             return userMapper.toDto(user);
@@ -85,25 +85,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(int id) {
+        if (!userRepository.existsById(id)) {
+            throw new ResourceNotFoundException("User with id " + id + " does not exist");
+        }
         userRepository.deleteById(id);
     }
 
     @Override
     public UserDto findById(int id) {
-        User user = userRepository.findById(id).orElse(null);
-        if (user == null) {
-            return null;
-        }
+        User user = userRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("User with id " + id + " does not exist"));
         return userMapper.toDto(user);
 
     }
 
     @Override
     public Optional<UserDto> findByEmail(String email) {
-        User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            return Optional.empty();
-        }
+        User user = userRepository.findByEmail(email).orElseThrow(() ->
+                new ResourceNotFoundException("User with email " + email + " does not exist"));
         UserDto userDto = userMapper.toDto(user);
         return Optional.of(userDto);
     }
