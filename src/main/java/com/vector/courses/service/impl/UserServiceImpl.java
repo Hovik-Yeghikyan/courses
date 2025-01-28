@@ -14,6 +14,7 @@ import com.vector.courses.repository.CourseRepository;
 import com.vector.courses.repository.UserRepository;
 import com.vector.courses.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final CourseRepository courseRepository;
     private final CourseMapper courseMapper;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Override
@@ -41,6 +43,7 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findByEmail(saveUserDto.getEmail()).isPresent()) {
             throw new ResourceAlreadyExistsException("User with email " + saveUserDto.getEmail() + " already exists");
         } else {
+            saveUserDto.setPassword(passwordEncoder.encode(saveUserDto.getPassword()));
             User user = userRepository.save(userMapper.toEntity(saveUserDto));
             return userMapper.toDto(user);
         }
@@ -105,5 +108,10 @@ public class UserServiceImpl implements UserService {
                 new ResourceNotFoundException("User with email " + email + " does not exist"));
         UserDto userDto = userMapper.toDto(user);
         return Optional.of(userDto);
+    }
+
+    @Override
+    public Optional<User> findEntityByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }
